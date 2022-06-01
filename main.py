@@ -18,73 +18,73 @@ def start(msg):
     bot.send_message(msg.chat.id, text)
 
 @bot.message_handler(commands=['quiz'])
-def quiz_1(msg):
-    qn, ans, options = quiz.quiz(1)
-    print(qn, ans, options)
-    text = "QUIZ QUESTION 1: QUICK MATH\n\n" + qn
+def quiz1(msg):
+    qn, ans, options, no = quiz.quiz(1)
+    print(qn, ans, options, no)
+    text = "QUIZ QUESTION 1: HISTORY OF SG\n\n" + qn
 
     keyboard = telebot.types.InlineKeyboardMarkup()
     for i in options:
         if i != ans:
             keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data=f"fail_{ans}"))
         else:
-            keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data="quiz_2"))
+            keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data=f"quiz2_{no}"))
 
     bot.send_message(msg.chat.id, text, reply_markup=keyboard)
 
-@bot.callback_query_handler(func=lambda call: call.data == "quiz_2")
-def handle_quiz_2(call):
+@bot.callback_query_handler(func=lambda call: call.data.startswith("quiz2"))
+def handle_quiz2(call):
     bot.answer_callback_query(call.id) #required to remove the loading state, which appears upon clicking the button
 
-    qn, ans, options = quiz.quiz(2)
-    print(qn, ans, options)
-    text = "QUIZ QUESTION 2: SLOW MATH\n\n" + qn
+    qn, ans, options, no = quiz.quiz(2)
+    print(qn, ans, options, no)
+    text = "QUIZ QUESTION 2: HISTORY OF NS\n\n" + qn
 
     keyboard = telebot.types.InlineKeyboardMarkup()
     for i in options:
         if i != ans:
             keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data=f"fail_{ans}"))
         else:
-            keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data="quiz_3"))
+            keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data=f"quiz3_{no}"))
     
     bot.edit_message_text(
-        text= "Congrats! You are correct:) \n\n[can include fun facts here]",
+        text= f"Congrats! You are correct:) \n\n{quiz.ff(1, call.data.split('_')[1])}",
         chat_id= call.message.chat.id,
         message_id= call.message.message_id
     )
 
     bot.send_message(call.message.chat.id, text, reply_markup=keyboard)
 
-@bot.callback_query_handler(func=lambda call: call.data == "quiz_3")
-def handle_quiz_3(call):
+@bot.callback_query_handler(func=lambda call: call.data.startswith("quiz3"))
+def handle_quiz3(call):
     bot.answer_callback_query(call.id) #required to remove the loading state, which appears upon clicking the button
 
-    qn, ans, options = quiz.quiz(3)
-    print(qn, ans, options)
-    text = "QUIZ QUESTION 3: MOST SLOW MATH\n\n" + qn
+    qn, ans, options, no = quiz.quiz(3)
+    print(qn, ans, options, no)
+    text = "QUIZ QUESTION 3: HISTORY OF 163\n\n" + qn
 
     keyboard = telebot.types.InlineKeyboardMarkup()
     for i in options:
         if i != ans:
             keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data=f"fail_{ans}"))
         else:
-            keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data="pass"))
+            keyboard.row(telebot.types.InlineKeyboardButton(i, callback_data=f"pass_{no}"))
     
     bot.edit_message_text(
-        text= "Congrats! You are correct:) \n\n[can include fun facts here]",
+        text= f"Congrats! You are correct:) \n\n{quiz.ff(2, call.data.split('_')[1])}",
         chat_id= call.message.chat.id,
         message_id= call.message.message_id
     )
     bot.send_message(call.message.chat.id, text, reply_markup=keyboard)
 
-@bot.callback_query_handler(func=lambda call: call.data == "pass")
+@bot.callback_query_handler(func=lambda call: call.data.startswith("pass"))
 def handle_pass(call):
     bot.answer_callback_query(call.id) #required to remove the loading state, which appears upon clicking the button
 
     text = "Congrats! You have made it to the end! Please show this message to the quiz booth to redeem ur prize. \nThank you and enjoy the upcoming movie:)"
     
     bot.edit_message_text(
-        text= "Congrats! You are correct:) \n\n[can include fun facts here]",
+        text= f"Congrats! You are correct:) \n\n{quiz.ff(3, call.data.split('_')[1])}",
         chat_id= call.message.chat.id,
         message_id= call.message.message_id
     )
